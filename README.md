@@ -1,4 +1,4 @@
-# ✨ IONIC-Loadblncr
+# ✨ IoLoad
 
 ### 👋 Welcome
 To the one of the most **Featureful** loadbalancers you will ever see... **Strong** enough  
