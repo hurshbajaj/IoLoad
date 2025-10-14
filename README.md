@@ -57,6 +57,7 @@ The Config you'll find will probably look something like
 ```json
 "host": [[127, 0, 0, 1], 3000],
 
+"redis_cache": false,
 "redis_server": 3005,
 "compression": true,
 "max_cache_mem": "100000000000mb",
@@ -112,9 +113,10 @@ Don't get overwhelmed- once you know what each field does you'll realize that th
 Pretty self explanatory.
 
 ```json
+"redis_cache: false,"
 "redis_server": 3005,
 ```
-The Load balancer required a redis to be running locally at all times for internal processes, including a cache; this field simply lets you specify a port for the same; to use the cache simply add the **cache-control** header to your responses with the value being the **TTL** in seconds.
+Incase redis_cache is set to true, the Loadbalancer uses the same to well, cache operations. The second field simply lets you specify a port for the same; to use the cache simply add the **cache-control** header to your responses with the value being the **TTL** in seconds.
 ```json
 "compression": true,
 "max_cache_mem": "100000000000mb",
