@@ -98,7 +98,7 @@ The Config you'll find will probably look something like
 
 "servers": [
     {
-        "ip": "/tmp/intrasudo25.sock",
+        "ip": "/tmp/IoLoad/target.sock",
         "is_active": true,
         "strict_timeout": false
     } 
@@ -199,7 +199,7 @@ Is the maximum time in seconds the LB will wait for a server to respond before g
 ```json
 "servers": [
     {
-        "ip": "/tmp/intrasudo25.sock",
+        "ip": "/tmp/IoLoad/target.sock",
         "is_active": true,
         "strict_timeout": false
     } 
