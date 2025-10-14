@@ -74,7 +74,7 @@ The Config you'll find will probably look something like
 
 "ddos_cap": 150,
 "ddos_grace_factor": 8,
-"dtp": 0.99,
+"ddos_threshold_percentile": 0.99,
 
 "ban_timeout": 300,
 
@@ -86,7 +86,7 @@ The Config you'll find will probably look something like
 "challenge_url": "/js-challenge",
 
 "dynamic": false,
-"server_spinup_rt_gf": 2, 
+"spinup_grace_window": 2, 
 "max_port": 6000,
 "bin_path": "./intrasudo25",
 
@@ -143,7 +143,7 @@ The first field asks for a minimum user agent length... if the request UA is sma
 "dos_sus_threshhold": 12,
 "ddos_cap": 150,
 "ddos_grace_factor": 8,
-"dtp": 0.99,
+"ddos_threshold_percentile": 0.99,
 "ban_timeout": 300,
 ```
 Now this is where things start getting epic. The first field asks for a threshold, an rps PER ip after which the loadbalancer blocks it for #ban_timeout seconds. However don't worry too much about it as this check isn't triggered every second, the loadbalncer only goes through each IP once things start getting suspiscious, that is, when there is a sudden spike in traffic. This is detected via the sliding quantile system in place. Feel free to google the terminology for its a fairly simple concept, or personally mail me your query if any as I'll be happy to explain it to you, but to operate this mechanism, you already know what [dos_sus_threshhold] does... Just read the following for the rest~
@@ -175,11 +175,11 @@ Fairly Straightforward, just google the same if you're unaware of the terminolog
 
 ```json
 "dynamic": false,
-"server_spinup_rt_gf": 2, 
+"spinup_grace_window": 2, 
 "max_port": 6000,
 "bin_path": "./intrasudo25",
 ```
-```dynamic``` turned on lets the LoadBalancer to start spinning up servers incase of high traffic itself.The ```server spinup response-time gracefector``` set to **X** tell the LB to spin up a new server if the response time of the target-servers shoot up to [Previous RT mean] * X; ```max_port``` is pretty straightforward, say the first server's port is 5000, the Loadbalancer with the current config will be able to make a maximum of 1000 additional servers; In case you're in IPC mode (more on that later), the server will be able to write 6000 more sockets (files) with the current config. And finally, the ```binary_path``` simply gives the LB the location of the binary which it can use to spin up new servers.
+```dynamic``` turned on lets the LoadBalancer to start spinning up servers incase of high traffic itself.The ```spinup_grace_window``` set to **X** tell the LB to spin up a new server if the response time of the target-servers shoot up to [Previous RT mean] * X; ```max_port``` is pretty straightforward, say the first server's port is 5000, the Loadbalancer with the current config will be able to make a maximum of 1000 additional servers; In case you're in IPC mode (more on that later), the server will be able to write 6000 more sockets (files) with the current config. And finally, the ```binary_path``` simply gives the LB the location of the binary which it can use to spin up new servers.
 
 ```json
 "ipc": true,
