@@ -116,10 +116,11 @@ pub async fn proxy(
     }
 
     const MAX_RETRIES: i32 = 3;
+    let mut active_target = 0;
 
     loop {
         if count >= MAX_RETRIES {
-            CLIclient::total_bad.fetch_add(1, Ordering::SeqCst);
+            if active_target > 0 { CLIclient::total_bad.fetch_add(1, Ordering::SeqCst); }
             return Err(anyhow::Error::msg(format_error_type(ErrorTypes::NoHealthyServerFound)));
         }
 
@@ -128,10 +129,15 @@ pub async fn proxy(
 
         let config_snapshot = CONFIG.read().await.clone();
         
-        if let Err(err) = updateTARGET(config_snapshot.clone()).await {
+        let updated_res = updateTARGET(config_snapshot.clone()).await;
+        if  updated_res != ErrorTypes::Nil{
+            if updated_res == ErrorTypes::GracefulShutdownUnderway{
+                return Err(anyhow::Error::msg(format_error_type(ErrorTypes::GracefulShutdownUnderway)));
+            }
             count += 1;
             continue; 
         }
+        active_target += 1;
 
         let target_gg = {
             let target_sgg = TARGET.read().await;
@@ -396,13 +402,13 @@ async fn clone_request(req: Request<Body>) -> Result<(Request<Body>, Request<Bod
     Ok((req1, req2))
 } 
 
-async fn updateTARGET(config: Config) -> anyhow::Result<()> {
+async fn updateTARGET(config: Config) -> ErrorTypes {
     if *proc_shutdown.read().await {
-        return Err(anyhow::anyhow!(format_error_type(ErrorTypes::NoHealthyServerFound)));
+        return ErrorTypes::GracefulShutdownUnderway;
     }
     
     if config.servers.is_empty() {
-        return Err(anyhow::anyhow!(format_error_type(ErrorTypes::NoHealthyServerFound)));
+        return ErrorTypes::NoHealthyServerFound;
     }
 
     let mut at_idx = atServerIdx.write().await;
@@ -430,12 +436,12 @@ async fn updateTARGET(config: Config) -> anyhow::Result<()> {
         if found_healthy {
             *TARGET.write().await = Some(server);
             *at_idx = [current_idx, 0];
-            return Ok(());
+            return ErrorTypes::Nil;
         }
 
         current_idx = (current_idx + 1) % config.servers.len() as u64;
         checked += 1;
     }
 
-    Err(anyhow::anyhow!(format_error_type(ErrorTypes::NoHealthyServerFound)))
+    return ErrorTypes::NoHealthyServerFound;
 }

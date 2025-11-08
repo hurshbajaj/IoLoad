@@ -118,7 +118,7 @@ pub struct Config {
     pub redis_config_init: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ErrorTypes {
     UpstreamServerFailed,
     TimeoutError,
@@ -130,6 +130,8 @@ pub enum ErrorTypes {
     Suspiscious,
     Load_balance_Verification_Fail,
     BadRequest,
+    GracefulShutdownUnderway,
+    Nil
 }
 
 pub struct SlidingQuantile {
